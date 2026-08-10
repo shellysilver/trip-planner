@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>מתכנן טיולים</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1f7a6c">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="מתכנן טיולים">
-<meta name="theme-color" content="#1f7a6c">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon-192.png">
 <style>
   :root{
     --bg:#f6f5f1;
@@ -503,6 +503,11 @@ function matchDestinationSuggestions(destStr){
 function mapsLink(placeName, destName){
   const q = destName ? `${placeName}, ${destName}` : placeName;
   return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+}
+
+function navLink(placeName, destName){
+  const q = destName ? `${placeName}, ${destName}` : placeName;
+  return 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(q);
 }
 
 /* ---------------- modal helper ---------------- */
@@ -1218,6 +1223,7 @@ function renderItinerary(){
             <div class="notes" style="margin-top:3px;">
               ${a.cost ? `<span class="tag">💰 ${escapeHtml(a.cost)}</span> ` : ''}
               <a href="${mapsLink(a.title, t.destination)}" target="_blank" rel="noopener">🗺️ מפה</a>
+              · <a href="${navLink(a.title, t.destination)}" target="_blank" rel="noopener">🧭 ניווט</a>
               ${a.link ? ` · <a href="${escapeHtml(a.link)}" target="_blank" rel="noopener">🎫 כרטיסים</a>` : ''}
             </div>
           </div>
@@ -1361,6 +1367,7 @@ function renderPlaces(){
         <div class="sub">
           ${p.cost ? `<span class="tag">💰 ${escapeHtml(p.cost)}</span> ` : ''}
           <a href="${mapsLink(p.name, t.destination)}" target="_blank" rel="noopener">🗺️ מפה</a>
+          · <a href="${navLink(p.name, t.destination)}" target="_blank" rel="noopener">🧭 ניווט</a>
           ${p.link ? ` · <a href="${escapeHtml(p.link)}" target="_blank" rel="noopener">🎫 רכישת כרטיסים / אתר רשמי</a>` : ''}
         </div>
       </div>
@@ -1392,6 +1399,7 @@ function renderPlaces(){
           <div class="sub">
             ${a.cost ? `<span class="tag">💰 ${escapeHtml(a.cost)}</span> ` : ''}
             <a href="${mapsLink(a.name, match.name)}" target="_blank" rel="noopener">🗺️ מפה</a>
+            · <a href="${navLink(a.name, match.name)}" target="_blank" rel="noopener">🧭 ניווט</a>
             ${a.ticketUrl ? ` · <a href="${escapeHtml(a.ticketUrl)}" target="_blank" rel="noopener">🎫 רכישת כרטיסים</a>` : ''}
           </div>
         </div>
@@ -1515,7 +1523,7 @@ renderAll();
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    navigator.serviceWorker.register('sw.js').catch(()=>{ /* offline support unavailable */ });
   });
 }
 </script>
