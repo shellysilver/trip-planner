@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מתכנן טיולים</title>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="מתכנן טיולים">
+<meta name="theme-color" content="#1f7a6c">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root{
+    --bg:#f6f5f1;
+    --card:#ffffff;
+    --ink:#232323;
+    --muted:#7a7772;
+    --line:#e7e4dc;
+    --teal:#1f7a6c;
+    --teal-dark:#155a4f;
+    --sand:#e9a23b;
+    --sand-dark:#c97f1d;
+    --danger:#c1462f;
+    --danger-bg:#fbeae6;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(0,0,0,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    line-height:1.5;
+  }
+  .app{max-width:960px;margin:0 auto;padding:20px 16px 60px;}
+
+  /* header */
+  header.top{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand .logo{
+    width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--teal),var(--sand));
+    display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;flex:none;
+  }
+  .brand h1{font-size:19px;margin:0;}
+  .brand p{margin:0;color:var(--muted);font-size:12.5px;}
+
+  .top-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  button{
+    font-family:inherit;cursor:pointer;border:none;border-radius:10px;
+    padding:9px 14px;font-size:13.5px;background:var(--card);color:var(--ink);
+    border:1px solid var(--line);transition:transform .08s ease, box-shadow .08s ease;
+  }
+  button:hover{box-shadow:var(--shadow);}
+  button:active{transform:scale(.97);}
+  button.primary{background:var(--teal);color:#fff;border-color:var(--teal);}
+  button.primary:hover{background:var(--teal-dark);}
+  button.accent{background:var(--sand);color:#fff;border-color:var(--sand);}
+  button.accent:hover{background:var(--sand-dark);}
+  button.ghost{background:transparent;}
+  button.danger-outline{color:var(--danger);border-color:#ecc7bc;}
+  button.danger-outline:hover{background:var(--danger-bg);}
+  button.small{padding:5px 10px;font-size:12px;border-radius:8px;}
+  button:disabled{opacity:.45;cursor:not-allowed;}
+
+  input,select,textarea{
+    font-family:inherit;font-size:13.5px;padding:8px 10px;border-radius:9px;
+    border:1px solid var(--line);background:#fff;color:var(--ink);width:100%;
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid #bfe3dc;border-color:var(--teal);}
+  label.f-label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;}
+  .field{margin-bottom:10px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  @media (max-width:560px){.row2,.row3{grid-template-columns:1fr;}}
+
+  /* empty state / no trip */
+  .empty{
+    background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);
+    padding:40px 20px;text-align:center;color:var(--muted);
+  }
+  .empty .big{font-size:34px;margin-bottom:6px;}
+
+  /* trip switcher */
+  .trip-bar{
+    display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;
+  }
+  select#tripSelect{max-width:260px;font-weight:600;}
+
+  /* trip header card */
+  .trip-hero{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:18px;margin-bottom:16px;
+  }
+  .trip-hero .top-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;}
+  .trip-hero h2{margin:0 0 4px;font-size:20px;}
+  .trip-hero .meta{color:var(--muted);font-size:13px;display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;}
+  .trip-hero .meta span{display:inline-flex;align-items:center;gap:5px;}
+  .stat-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .stat{
+    background:#faf9f6;border:1px solid var(--line);border-radius:10px;padding:10px 14px;flex:1;min-width:120px;
+  }
+  .stat .num{font-size:18px;font-weight:700;}
+  .stat .lbl{font-size:11.5px;color:var(--muted);}
+  .stat.over .num{color:var(--danger);}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+  .tab-btn{
+    background:transparent;border:none;border-bottom:2px solid transparent;border-radius:0;
+    padding:10px 14px;font-size:14px;color:var(--muted);font-weight:600;
+  }
+  .tab-btn.active{color:var(--teal-dark);border-bottom-color:var(--teal);}
+  .tab-btn:hover{background:#efece5;border-radius:8px 8px 0 0;}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px;margin-bottom:14px;
+  }
+  .card h3{margin:0 0 10px;font-size:15px;}
+  .section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+
+  /* itinerary */
+  .day-card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px;background:#fdfcfa;}
+  .day-card .day-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .day-card .day-title{font-weight:700;font-size:14px;}
+  .day-card .day-title .date-str{color:var(--muted);font-weight:400;font-size:12.5px;margin-right:6px;}
+  .activity{
+    display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px dashed var(--line);
+  }
+  .activity:first-of-type{border-top:none;}
+  .activity .time{
+    flex:none;width:56px;font-weight:700;color:var(--teal-dark);font-size:13px;padding-top:2px;
+  }
+  .activity .body{flex:1;min-width:0;}
+  .activity .body .t{font-weight:600;font-size:13.5px;}
+  .activity .body .loc{color:var(--muted);font-size:12px;}
+  .activity .body .notes{color:var(--muted);font-size:12px;margin-top:2px;}
+  .activity .del{flex:none;}
+  .empty-day{color:var(--muted);font-size:12.5px;padding:6px 0;}
+
+  /* budget */
+  .expense-row{
+    display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line);
+  }
+  .expense-row:first-of-type{border-top:none;}
+  .expense-row .desc{font-weight:600;font-size:13.5px;}
+  .expense-row .cat{font-size:11.5px;color:var(--muted);background:#f1efe9;border-radius:6px;padding:2px 7px;margin-right:6px;}
+  .expense-row .amt{font-weight:700;white-space:nowrap;}
+  .expense-row .date{font-size:11.5px;color:var(--muted);}
+
+  .bars{margin-top:6px;}
+  .bar-row{margin-bottom:8px;}
+  .bar-row .bar-labels{display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;}
+  .bar-bg{background:#eee;border-radius:6px;height:8px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--teal);border-radius:6px;}
+
+  .budget-progress{margin-top:6px;}
+  .budget-progress .bar-bg{height:12px;}
+  .budget-progress .bar-fill{background:var(--sand);}
+  .budget-progress .bar-fill.over{background:var(--danger);}
+  .bar-fill.over{background:var(--danger);}
+  .split-suggested .bar-fill{background:#d9d4c6;}
+
+  /* suggestions */
+  .sugg-tips{margin-top:8px;}
+
+  /* places & docs */
+  .list-item{
+    display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);
+  }
+  .list-item:first-of-type{border-top:none;}
+  .list-item.done .title{text-decoration:line-through;color:var(--muted);}
+  .list-item input[type=checkbox]{width:18px;height:18px;margin-top:2px;flex:none;}
+  .list-item .content{flex:1;min-width:0;}
+  .list-item .title{font-weight:600;font-size:13.5px;}
+  .list-item .sub{font-size:12px;color:var(--muted);}
+  .list-item a{color:var(--teal-dark);}
+  .tag{display:inline-block;font-size:11px;background:#f1efe9;border-radius:6px;padding:2px 7px;color:var(--muted);}
+
+  .muted-small{color:var(--muted);font-size:12px;}
+
+  /* modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(20,20,15,.45);display:none;align-items:center;justify-content:center;
+    padding:16px;z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:#fff;border-radius:16px;padding:20px;max-width:440px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.25);
+    max-height:90vh;overflow:auto;
+  }
+  .modal h3{margin-top:0;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+
+  footer.hint{text-align:center;color:var(--muted);font-size:11.5px;margin-top:24px;}
+  .icon-btn{padding:6px 9px;font-size:14px;line-height:1;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo">✈️</div>
+      <div>
+        <h1>מתכנן טיולים</h1>
+        <p>לו״ז, תקציב, מקומות ומסמכים — הכול במקום אחד</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="ghost small" id="exportBtn" title="שמירת כל הנתונים לקובץ">⬇️ ייצוא נתונים</button>
+      <button class="ghost small" id="importBtn" title="טעינת קובץ נתונים שנשמר בעבר">⬆️ ייבוא נתונים</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none;">
+    </div>
+  </header>
+
+  <div class="trip-bar">
+    <select id="tripSelect"></select>
+    <button class="primary small" id="newTripBtn">+ טיול חדש</button>
+    <button class="danger-outline small" id="deleteTripBtn">מחק טיול</button>
+  </div>
+
+  <div id="noTrips" class="empty" style="display:none;">
+    <div class="big">🧳</div>
+    <div style="font-weight:700;margin-bottom:6px;">אין עדיין טיולים</div>
+    <div>לחצי על <b>"+ טיול חדש"</b> כדי להתחיל לתכנן</div>
+  </div>
+
+  <div id="tripArea" style="display:none;">
+    <div class="trip-hero" id="tripHero"></div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="itinerary">📅 לו״ז</button>
+      <button class="tab-btn" data-tab="budget">💰 תקציב</button>
+      <button class="tab-btn" data-tab="places">📍 מקומות ומסמכים</button>
+    </div>
+
+    <div class="panel active" id="panel-itinerary"></div>
+    <div class="panel" id="panel-budget"></div>
+    <div class="panel" id="panel-places"></div>
+  </div>
+
+  <footer class="hint">הנתונים נשמרים אוטומטית במכשיר הזה. כדי להעביר אותם למכשיר אחר, השתמשי בייצוא/ייבוא נתונים למעלה.</footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<script>
+/* ---------------- state ---------------- */
+let state = {
+  trips: [],
+  activeTripId: null
+};
+let uidCounter = 1;
+function uid(){ return 'id' + (uidCounter++) + '_' + Math.random().toString(36).slice(2,7); }
+
+const STORAGE_KEY = 'tripPlannerState_v1';
+function saveToStorage(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){ /* storage unavailable */ }
+}
+function loadFromStorage(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    if(!parsed || !Array.isArray(parsed.trips)) return null;
+    return parsed;
+  }catch(e){ return null; }
+}
+
+function activeTrip(){
+  return state.trips.find(t => t.id === state.activeTripId) || null;
+}
+
+function currency(t){ return (t && t.currency) || '₪'; }
+
+function fmtMoney(n, cur){
+  n = Number(n)||0;
+  return n.toLocaleString('he-IL',{maximumFractionDigits:0}) + ' ' + cur;
+}
+
+function fmtDate(d){
+  if(!d) return '';
+  const dt = new Date(d+'T00:00:00');
+  if(isNaN(dt)) return d;
+  return dt.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+function dateRangeDays(start,end){
+  const days=[];
+  if(!start) return days;
+  const s = new Date(start+'T00:00:00');
+  const e = end ? new Date(end+'T00:00:00') : s;
+  if(isNaN(s)) return days;
+  let cur = new Date(s);
+  let i=0;
+  while(cur <= e && i < 60){
+    days.push(cur.toISOString().slice(0,10));
+    cur.setDate(cur.getDate()+1);
+    i++;
+  }
+  return days;
+}
+
+/* ---------------- suggestions data ---------------- */
+const SUGGESTED_SPLIT = {'טיסות':0.30,'לינה':0.30,'אוכל':0.20,'אטרקציות':0.15,'אחר':0.05};
+
+const STANDARD_DOCUMENTS = [
+  {type:'דרכון', name:'לבדוק תוקף דרכון (לפחות 6 חודשים מיום החזרה)'},
+  {type:'אשרה (וויזה)', name:'לבדוק אם נדרשת אשרת כניסה ליעד'},
+  {type:'ביטוח נסיעות', name:'לרכוש ביטוח נסיעות לכל התקופה'},
+  {type:'כרטיס טיסה', name:'לשמור אישורי טיסה והזמנות'},
+  {type:'הזמנת מלון', name:'לשמור אישורי הזמנת לינה'},
+  {type:'אחר', name:'להודיע לבנק / חברת האשראי על נסיעה לחו״ל'},
+  {type:'אחר', name:'לבדוק מתאם חשמל וסים/רומינג ליעד'}
+];
+
+const DESTINATION_SUGGESTIONS = [
+  {keys:['פריז','paris'], name:'פריז', attractions:[
+    {name:'מגדל אייפל', note:'שווה להזמין כרטיסים מראש כדי לחסוך בתור', tags:['history','family'], cost:'בתשלום (יש אופציית מדרגות זולה יותר)', ticketUrl:'https://www.toureiffel.paris/en'},
+    {name:'מוזיאון הלובר', note:'סגור בימי שלישי', tags:['art','history'], cost:'בתשלום', ticketUrl:'https://ticket.louvre.fr/en'},
+    {name:'שדרת השאנז אליזה ושער הניצחון', tags:['shopping','history'], cost:'חינם (העלייה לגג שער הניצחון בתשלום סמלי)'},
+    {name:'שכונת מונמארטר ובזיליקת סאקרה קר', tags:['history','art'], cost:'חינם (עלייה לכיפה בתשלום סמלי)'},
+    {name:'שיוט על נהר הסיין', tags:['relax','family'], cost:'בתשלום'}
+  ], tips:['כרטיס מטרו רב-נסיעות חוסך זמן וכסף','חנויות רבות סגורות בימי ראשון']},
+  {keys:['רומא','roma','rome'], name:'רומא', attractions:[
+    {name:'הקולוסאום', note:'מומלץ כרטיס משולב עם הפורום הרומי', tags:['history'], cost:'בתשלום (≈€18, מומלץ לבדוק מחיר עדכני)', ticketUrl:'https://colosseo.it/en/opening-times-and-tickets/'},
+    {name:'הפנתאון', tags:['history'], cost:'בתשלום (מחיר סמלי; חינם לתפילה)'},
+    {name:'מזרקת טרווי', tags:['relax','history'], cost:'חינם'},
+    {name:'הוותיקן ומוזיאון הוותיקן', note:'תור ארוך - שווה כרטיס מוקדם', tags:['art','history'], cost:'בתשלום', ticketUrl:'https://www.museivaticani.va/content/museivaticani/en/organizza-visita/tariffe-e-biglietti.html'},
+    {name:'שכונת טרסטבירה', tags:['food','nightlife'], cost:'חינם'}
+  ], tips:['נעליים נוחות חובה - הרבה הליכה על אבן']},
+  {keys:['לונדון','london'], name:'לונדון', attractions:[
+    {name:'ארמון בקינגהאם', tags:['history'], cost:'חינם לצפייה מבחוץ; הסיורים הפנימיים (בקיץ בלבד) בתשלום'},
+    {name:'ביג בן ובית הפרלמנט', tags:['history'], cost:'חינם לצפייה מבחוץ; סיורים מודרכים בתשלום'},
+    {name:'הטאואר של לונדון וגשר המגדל', tags:['history'], cost:'בתשלום (שני אתרים עם כרטיסים נפרדים)'},
+    {name:'מוזיאון בריטי', note:'כניסה חינם', tags:['art','history'], cost:'חינם', ticketUrl:'https://www.britishmuseum.org/visit'},
+    {name:'שוק קמדן / בורו מרקט', tags:['food','shopping'], cost:'חינם (תשלום על מה שקונים)'}
+  ], tips:['כרטיס Oyster חוסך בתחבורה ציבורית','לוקח לרוב יותר גשום - שווה מעיל גשם']},
+  {keys:['ברצלונה','barcelona'], name:'ברצלונה', attractions:[
+    {name:'סגרדה פמיליה', note:'הזמנת כרטיסים מראש חובה', tags:['art','history'], cost:'בתשלום', ticketUrl:'https://sagradafamilia.org/en/'},
+    {name:'פארק גוארל', tags:['art','nature'], cost:'חינם באזור הכללי; האזור המונומנטלי בתשלום'},
+    {name:'שדרת לה רמבלה ושוק בוקריה', tags:['food','shopping'], cost:'חינם'},
+    {name:'הרובע הגותי', tags:['history'], cost:'חינם'},
+    {name:'חוף ברצלונטה', tags:['relax','nature'], cost:'חינם'}
+  ], tips:['להיזהר מכייסים באזורים תיירותיים']},
+  {keys:['אמסטרדם','amsterdam'], name:'אמסטרדם', attractions:[
+    {name:'בית אנה פרנק', note:'כרטיסים נגמרים מהר - להזמין מראש', tags:['history'], cost:'בתשלום', ticketUrl:'https://www.annefrank.org/en/museum/tickets/'},
+    {name:'שיוט בתעלות', tags:['relax','family'], cost:'בתשלום'},
+    {name:'מוזיאון ואן גוך', tags:['art'], cost:'בתשלום', ticketUrl:'https://www.vangoghmuseum.nl/en/visit/tickets-and-ticket-prices'},
+    {name:'שוק פרחים צף', tags:['shopping'], cost:'חינם (תשלום על מה שקונים)'},
+    {name:'רובע יורדאן', tags:['food','shopping'], cost:'חינם'}
+  ], tips:['אופניים הם אמצעי התחבורה המרכזי - לשים לב בהליכה']},
+  {keys:['אתונה','athens'], name:'אתונה', attractions:[
+    {name:'האקרופוליס והפרתנון', note:'לבוא מוקדם בבוקר כדי להימנע מתורים וחום', tags:['history'], cost:'בתשלום (≈€20, מומלץ לבדוק מחיר עדכני)', ticketUrl:'https://etickets.tap.gr/'},
+    {name:'שכונת פלאקה', tags:['food','shopping'], cost:'חינם'},
+    {name:'האגורה העתיקה', tags:['history'], cost:'בתשלום (לרוב בכרטיס משולב עם האקרופוליס)'},
+    {name:'הר ליקאווטוס - נקודת תצפית', tags:['nature','relax'], cost:'חינם לעלייה ברגל; הפוניקולר בתשלום'},
+    {name:'רובע מונאסטיראקי ושוק', tags:['shopping','food'], cost:'חינם'},
+    {name:'המוזיאון הארכיאולוגי הלאומי', note:'אחד המוזיאונים החשובים בעולם לעת עתיקה', tags:['art','history'], cost:'בתשלום - התייקר ב-2026, מומלץ לבדוק מחיר עדכני'},
+    {name:'מקדש זאוס האולימפי ושער אדריאנוס', tags:['history'], cost:'בתשלום (כרטיס קטן)'},
+    {name:'האצטדיון הפנאתנאיקי (מרמר לבן)', tags:['history'], cost:'בתשלום (כרטיס קטן)'},
+    {name:'שוק וארוואקיוס (שוק המזון המרכזי)', tags:['food','shopping'], cost:'חינם'},
+    {name:'טיול יום לקייפ סוניון ומקדש פוסידון', note:'שקיעה מרהיבה מעל הים', tags:['nature','history'], cost:'בתשלום (כרטיס קטן לאתר המקדש)'},
+    {name:'ארוחת ערב בטברנה עם מוזיקה חיה', tags:['food','nightlife'], cost:'בתשלום (עלות הארוחה)'}
+  ], tips:['בקיץ חם מאוד בצהריים - לתכנן סיורים לשעות הבוקר']},
+  {keys:['ליסבון','lisbon','lisboa'], name:'ליסבון', attractions:[
+    {name:'מגדל בלם', tags:['history'], cost:'בתשלום'},
+    {name:'רובע אלפאמה', note:'הליכה ברחובות עם פאדו בערב', tags:['nightlife','history'], cost:'חינם; מופעי פאדו בתשלום'},
+    {name:'מעלית סנטה חוסטה', tags:['history','relax'], cost:'בתשלום לנסיעה (אפשר לצפות מבחוץ בחינם)'},
+    {name:'שכונת בלם ופסטריות פסטל דה נאטה', tags:['food'], cost:'חינם (תשלום רק על מה שקונים)'},
+    {name:'טיול יום לסינטרה', tags:['nature','history'], cost:'חינם להליכה בעיר; הארמונות (למשל פנה) בתשלום'}
+  ], tips:['הרחובות תלולים ומרוצפים - נעליים נוחות חשובות']},
+  {keys:['פראג','prague'], name:'פראג', attractions:[
+    {name:'הגשר צ׳רלס', tags:['history','relax'], cost:'חינם'},
+    {name:'הכיכר העתיקה ושעון האסטרונומי', tags:['history'], cost:'חינם'},
+    {name:'טירת פראג', tags:['history'], cost:'חינם לשטח הטירה; האתרים הפנימיים בתשלום'},
+    {name:'הרובע היהודי', tags:['history'], cost:'בתשלום (כרטיס משולב לבתי הכנסת והמוזיאון)'},
+    {name:'שכונת מאלה סטרנה', tags:['relax','food'], cost:'חינם'}
+  ], tips:['עיר מהלכה מאוד - נוחה לתכנון לו״ז רגלי']},
+  {keys:['וינה','vienna','wien'], name:'וינה', attractions:[
+    {name:'ארמון שנברון', tags:['history','family'], cost:'בתשלום', ticketUrl:'https://www.schoenbrunn.at/en/tickets-and-prices/all-tickets-tours'},
+    {name:'קתדרלת שטפן', tags:['history'], cost:'חינם לכניסה; עלייה למגדל/קטקומבות בתשלום'},
+    {name:'ארמון בלוודר', tags:['art','history'], cost:'בתשלום'},
+    {name:'גלגל הענק בפראטר', tags:['family','relax'], cost:'חינם לפארק; הגלגל בתשלום'},
+    {name:'בית קפה וינאי קלאסי', tags:['food','relax'], cost:'בתשלום (עלות ההזמנה)'}
+  ], tips:['תחבורה ציבורית מסודרת ומדויקת בזמנים']},
+  {keys:['בודפשט','budapest'], name:'בודפשט', attractions:[
+    {name:'בית הפרלמנט', tags:['history'], cost:'בתשלום (סיור מודרך בלבד לפנים הבניין)'},
+    {name:'מרחצאות סצ׳ני', note:'מומלץ להביא בגד ים ומגבת', tags:['relax','family'], cost:'בתשלום', ticketUrl:'https://www.szechenyibath.hu/prices'},
+    {name:'הטירה של בודה ומצפה הדייגים', tags:['history','nature'], cost:'חינם לשטח; חלק מנקודות התצפית במצפה הדייגים בתשלום'},
+    {name:'שיוט ערב על הדנובה', tags:['relax','nightlife'], cost:'בתשלום'},
+    {name:'רובע היהודי ובתי הריסה (ruin bars)', tags:['nightlife','history'], cost:'חינם (תשלום על מה שמזמינים)'}
+  ], tips:['יעד תקציבי יחסית לאירופה המערבית']},
+  {keys:['איסטנבול','istanbul'], name:'איסטנבול', attractions:[
+    {name:'איה סופיה', tags:['history'], cost:'כניסה לתפילה חינם; לתיירים יש אזור בתשלום - מומלץ לבדוק מחיר עדכני'},
+    {name:'מסגד הסולטן אחמד (המסגד הכחול)', tags:['history'], cost:'חינם (בית תפילה פעיל)'},
+    {name:'השוק הגדול (Grand Bazaar)', tags:['shopping'], cost:'חינם'},
+    {name:'ארמון טופקאפי', tags:['history'], cost:'בתשלום (חלק הארמון וההרמון - כרטיסים נפרדים)'},
+    {name:'שיוט על הבוספורוס', tags:['relax','nature'], cost:'בתשלום (יש גם מעבורת ציבורית זולה יותר)'}
+  ], tips:['לבוש מכובד/מכסה כתפיים וברכיים לכניסה למסגדים']},
+  {keys:['ברלין','berlin'], name:'ברלין', attractions:[
+    {name:'שער ברנדנבורג', tags:['history'], cost:'חינם'},
+    {name:'שרידי חומת ברלין (East Side Gallery)', tags:['art','history'], cost:'חינם'},
+    {name:'איי המוזיאונים', tags:['art'], cost:'בתשלום (יש כרטיס יום משולב לכל האתר)'},
+    {name:'הרייכסטאג', note:'כניסה לכיפה דורשת הרשמה מראש', tags:['history'], cost:'חינם, נדרשת הרשמה מראש', ticketUrl:'https://www.bundestag.de/en/visits'},
+    {name:'שכונת קרויצברג', tags:['nightlife','food'], cost:'חינם'}
+  ], tips:['תחבורה ציבורית מצוינת ומכוסה כמעט לכל העיר']},
+  {keys:['ניו יורק','new york','nyc'], name:'ניו יורק', attractions:[
+    {name:'טיימס סקוור', tags:['nightlife','shopping'], cost:'חינם'},
+    {name:'סנטרל פארק', tags:['nature','family'], cost:'חינם'},
+    {name:'פסל החרות ואליס איילנד', tags:['history'], cost:'בתשלום (מעבורת + כרטיס)'},
+    {name:'מוזיאון המטרופוליטן / MoMA', tags:['art'], cost:'בתשלום (≈$30; במטרופוליטן - "שלמו כרצונכם" לתושבי ניו יורק/ניו ג׳רזי/קונטיקט)', ticketUrl:'https://www.metmuseum.org/plan-your-visit'},
+    {name:'גשר ברוקלין', tags:['relax','history'], cost:'חינם'}
+  ], tips:['הרבה הליכה ותורים - לתכנן זמן buffer בין אתרים']},
+  {keys:['בנגקוק','bangkok'], name:'בנגקוק', attractions:[
+    {name:'הארמון הגדול (Grand Palace)', tags:['history'], cost:'בתשלום'},
+    {name:'מקדש וואט פו (בודהה השוכב)', tags:['history'], cost:'בתשלום (כרטיס זול)'},
+    {name:'שוק צף / שוק לילה', tags:['food','shopping'], cost:'חינם (תשלום על מה שקונים)'},
+    {name:'שיוט בתעלות (Khlongs)', tags:['nature','relax'], cost:'בתשלום'},
+    {name:'רחוב חוואה חוואן בערב', tags:['nightlife','food'], cost:'חינם (תשלום על מה שמזמינים)'}
+  ], tips:['לבוש מכבד ומכסה ברכיים/כתפיים לכניסה למקדשים']},
+  {keys:['טוקיו','tokyo'], name:'טוקיו', attractions:[
+    {name:'מקדש סנסוג׳י באסאקוסה', tags:['history'], cost:'חינם'},
+    {name:'צומת שיבויה (Shibuya Crossing)', tags:['shopping','nightlife'], cost:'חינם'},
+    {name:'מגדל טוקיו / טוקיו סקייטרי', tags:['history','relax'], cost:'בתשלום'},
+    {name:'שוק דגים צוקיג׳י', tags:['food'], cost:'חינם (תשלום על אוכל)'},
+    {name:'שכונת אקיהברה', tags:['shopping'], cost:'חינם'}
+  ], tips:['כרטיס Suica/Pasmo מקל מאוד על תחבורה ציבורית']},
+  {keys:['דובאי','dubai'], name:'דובאי', attractions:[
+    {name:'בורג׳ חליפה', tags:['history','relax'], cost:'בתשלום (המחיר משתנה לפי קומה ושעה)', ticketUrl:'https://www.burjkhalifa.ae/'},
+    {name:'דובאי מול והמזרקות', tags:['shopping','family'], cost:'חינם (מופע המזרקות חינם; החנויות בתשלום)'},
+    {name:'שוק הזהב והתבלינים (סוק)', tags:['shopping'], cost:'חינם'},
+    {name:'סיור מדבר / רכיבת ג׳יפים', tags:['nature','family'], cost:'בתשלום'},
+    {name:'מרינה של דובאי', tags:['relax','nightlife'], cost:'חינם'}
+  ], tips:['בקיץ חם מאוד - לתכנן פעילויות חוץ לשעות הבוקר/ערב']},
+  {keys:['מדריד','madrid'], name:'מדריד', attractions:[
+    {name:'מוזיאון פראדו', tags:['art'], cost:'בתשלום (≈€15, מומלץ לבדוק מחיר עדכני)', ticketUrl:'https://www.museodelprado.es/en'},
+    {name:'ארמון המלוכה', tags:['history'], cost:'בתשלום'},
+    {name:'פארק רטירו', tags:['nature','relax'], cost:'חינם'},
+    {name:'שוק סן מיגל', tags:['food'], cost:'חינם (תשלום על מה שקונים)'},
+    {name:'אצטדיון סנטיאגו ברנבאו', tags:['family'], cost:'בתשלום (סיור באצטדיון)'}
+  ], tips:['החיים המקומיים מתחילים מאוחר - ארוחות ערב ב-21:00-22:00']},
+  {keys:['ונציה','venice','venezia'], name:'ונציה', attractions:[
+    {name:'כיכר סן מרקו', tags:['history'], cost:'חינם לכיכר והבזיליקה; מגדל הפעמונים בתשלום'},
+    {name:'גשר האנחות', tags:['history'], cost:'חינם לצפייה מבחוץ; הכניסה דרך ארמון הדוג׳ה בתשלום'},
+    {name:'שיוט בגונדולה בתעלות', tags:['relax','family'], cost:'בתשלום (מחיר קבוע לפי תעריף העיר)'},
+    {name:'איי מוראנו ובוראנו', tags:['shopping','relax'], cost:'חינם באיים; תשלום על מעבורת הוואפורטו'},
+    {name:'גשר ריאלטו והשוק שלו', tags:['food','shopping'], cost:'חינם'}
+  ], tips:['נעליים אטומות למים בחודשי חורף - הצפות אפשריות']}
+];
+
+const GENERIC_FALLBACK_ATTRACTIONS = [
+  {name:'סיור רגלי במרכז ההיסטורי / שכונה מרכזית', note:'נקודת התחלה טובה להתמצאות ביעד', tags:['history'], cost:'חינם'},
+  {name:'ארוחת צהריים במסעדה מקומית מומלצת', note:'שווה לחפש המלצות ב-Google Maps או TripAdvisor', tags:['food'], cost:'בתשלום (עלות הארוחה)'},
+  {name:'מוזיאון או אתר תרבות מרכזי', note:'לבדוק שעות פתיחה ומחיר מראש', tags:['art','history'], cost:'בתשלום (משתנה לפי אתר)'},
+  {name:'זמן חופשי לקניות / שוק מקומי', note:'', tags:['shopping'], cost:'חינם (תשלום על מה שקונים)'},
+  {name:'טיול טבע / נקודת תצפית', note:'', tags:['nature','relax'], cost:'חינם בדרך כלל'},
+  {name:'ארוחת ערב וטיול רחוב בערב', note:'', tags:['nightlife','food'], cost:'בתשלום (עלות הארוחה)'},
+  {name:'פעילות מותאמת למשפחות (פארק/אטרקציה)', note:'', tags:['family'], cost:'משתנה - יש גם אפשרויות חינמיות'},
+  {name:'זמן מנוחה / בית קפה / ספא', note:'', tags:['relax'], cost:'משתנה (עלות ההזמנה)'}
+];
+
+const INTEREST_OPTIONS = [
+  {key:'history', label:'היסטוריה ותרבות'},
+  {key:'art', label:'אמנות ומוזיאונים'},
+  {key:'food', label:'אוכל'},
+  {key:'nature', label:'טבע ונופים'},
+  {key:'nightlife', label:'חיי לילה'},
+  {key:'family', label:'משפחה וילדים'},
+  {key:'shopping', label:'קניות'},
+  {key:'relax', label:'רגיעה ופנאי'}
+];
+
+const COMPANION_OPTIONS = [
+  {key:'solo', label:'לבד'},
+  {key:'couple', label:'זוג'},
+  {key:'family', label:'משפחה עם ילדים'},
+  {key:'friends', label:'חברים'}
+];
+const COMPANION_BOOST = {family:['family'], couple:['relax'], friends:['nightlife','food'], solo:[]};
+
+function normalizeStr(s){ return String(s||'').toLowerCase().trim(); }
+
+function matchDestinationSuggestions(destStr){
+  const norm = normalizeStr(destStr);
+  if(!norm) return null;
+  return DESTINATION_SUGGESTIONS.find(d => d.keys.some(k => norm.includes(normalizeStr(k)))) || null;
+}
+
+function mapsLink(placeName, destName){
+  const q = destName ? `${placeName}, ${destName}` : placeName;
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
+}
+
+/* ---------------- modal helper ---------------- */
+const overlay = document.getElementById('overlay');
+const modalBody = document.getElementById('modalBody');
+function closeModal(){ overlay.classList.remove('show'); modalBody.innerHTML=''; }
+function openModal(html){ modalBody.innerHTML = html; overlay.classList.add('show'); }
+overlay.addEventListener('click', e => { if(e.target === overlay) closeModal(); });
+
+function confirmAction(message, onYes){
+  openModal(`
+    <h3>אישור</h3>
+    <p>${message}</p>
+    <div class="modal-actions">
+      <button class="ghost" id="cAno">ביטול</button>
+      <button class="danger-outline" id="cAyes">אישור</button>
+    </div>
+  `);
+  document.getElementById('cAno').onclick = closeModal;
+  document.getElementById('cAyes').onclick = () => { closeModal(); onYes(); };
+}
+
+/* ---------------- trips ---------------- */
+function openNewTripModal(){
+  openModal(`
+    <h3>טיול חדש</h3>
+    <div class="field">
+      <label class="f-label">שם הטיול</label>
+      <input id="ntName" placeholder="לדוגמה: יוון - קורפו">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label class="f-label">יעד</label>
+        <input id="ntDest" placeholder="עיר / מדינה">
+      </div>
+      <div class="field">
+        <label class="f-label">מטבע</label>
+        <select id="ntCur">
+          <option value="₪">₪ שקל</option>
+          <option value="€">€ יורו</option>
+          <option value="$">$ דולר</option>
+          <option value="£">£ ליש״ט</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label class="f-label">תאריך יציאה</label>
+        <input type="date" id="ntStart">
+      </div>
+      <div class="field">
+        <label class="f-label">תאריך חזרה</label>
+        <input type="date" id="ntEnd">
+      </div>
+    </div>
+    <div class="field">
+      <label class="f-label">תקציב כולל (אופציונלי)</label>
+      <input type="number" id="ntBudget" placeholder="0" min="0">
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="ntCancel">ביטול</button>
+      <button class="primary" id="ntSave">צור טיול</button>
+    </div>
+  `);
+  document.getElementById('ntCancel').onclick = closeModal;
+  document.getElementById('ntSave').onclick = () => {
+    const name = document.getElementById('ntName').value.trim() || 'טיול ללא שם';
+    const dest = document.getElementById('ntDest').value.trim();
+    const cur = document.getElementById('ntCur').value;
+    const start = document.getElementById('ntStart').value;
+    const end = document.getElementById('ntEnd').value;
+    const budget = Number(document.getElementById('ntBudget').value) || 0;
+    const trip = {
+      id: uid(), name, destination: dest, currency: cur,
+      startDate: start, endDate: end, budgetTotal: budget,
+      days: dateRangeDays(start,end).map(d => ({id:uid(), date:d, activities:[]})),
+      expenses: [], places: [],
+      documents: STANDARD_DOCUMENTS.map(d => ({id:uid(), type:d.type, name:d.name, expiry:'', done:false}))
+    };
+    if(trip.days.length === 0){
+      trip.days.push({id:uid(), date:null, activities:[]});
+    }
+    state.trips.push(trip);
+    state.activeTripId = trip.id;
+    closeModal();
+    renderAll();
+  };
+}
+
+function editTripDetails(){
+  const t = activeTrip(); if(!t) return;
+  openModal(`
+    <h3>עריכת פרטי טיול</h3>
+    <div class="field">
+      <label class="f-label">שם הטיול</label>
+      <input id="etName" value="${escapeHtml(t.name)}">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label class="f-label">יעד</label>
+        <input id="etDest" value="${escapeHtml(t.destination||'')}" placeholder="עיר / מדינה">
+      </div>
+      <div class="field">
+        <label class="f-label">מטבע</label>
+        <select id="etCur">
+          <option value="₪" ${t.currency==='₪'?'selected':''}>₪ שקל</option>
+          <option value="€" ${t.currency==='€'?'selected':''}>€ יורו</option>
+          <option value="$" ${t.currency==='$'?'selected':''}>$ דולר</option>
+          <option value="£" ${t.currency==='£'?'selected':''}>£ ליש״ט</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label class="f-label">תאריך יציאה</label>
+        <input type="date" id="etStart" value="${t.startDate||''}">
+      </div>
+      <div class="field">
+        <label class="f-label">תאריך חזרה</label>
+        <input type="date" id="etEnd" value="${t.endDate||''}">
+      </div>
+    </div>
+    <div class="field">
+      <label class="f-label">תקציב כולל</label>
+      <input type="number" id="etBudget" min="0" value="${t.budgetTotal||0}">
+    </div>
+    <div class="muted-small">שינוי תאריכים לא מוחק ימים או פעילויות קיימות - אפשר להוסיף ימים חדשים ידנית בלשונית הלו״ז.</div>
+    <div class="modal-actions">
+      <button class="ghost" id="etCancel">ביטול</button>
+      <button class="primary" id="etSave">שמור</button>
+    </div>
+  `);
+  document.getElementById('etCancel').onclick = closeModal;
+  document.getElementById('etSave').onclick = () => {
+    t.name = document.getElementById('etName').value.trim() || t.name;
+    t.destination = document.getElementById('etDest').value.trim();
+    t.currency = document.getElementById('etCur').value;
+    t.startDate = document.getElementById('etStart').value;
+    t.endDate = document.getElementById('etEnd').value;
+    t.budgetTotal = Number(document.getElementById('etBudget').value) || 0;
+    closeModal(); renderAll();
+  };
+}
+
+function deleteActiveTrip(){
+  const t = activeTrip();
+  if(!t) return;
+  confirmAction(`למחוק את הטיול "<b>${escapeHtml(t.name)}</b>"? הפעולה בלתי הפיכה.`, () => {
+    state.trips = state.trips.filter(x => x.id !== t.id);
+    state.activeTripId = state.trips.length ? state.trips[0].id : null;
+    renderAll();
+  });
+}
+
+/* ---------------- itinerary ---------------- */
+function addDay(){
+  const t = activeTrip(); if(!t) return;
+  openModal(`
+    <h3>הוספת יום</h3>
+    <div class="field">
+      <label class="f-label">תאריך (אופציונלי)</label>
+      <input type="date" id="adDate">
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="adCancel">ביטול</button>
+      <button class="primary" id="adSave">הוסף</button>
+    </div>
+  `);
+  document.getElementById('adCancel').onclick = closeModal;
+  document.getElementById('adSave').onclick = () => {
+    const date = document.getElementById('adDate').value || null;
+    t.days.push({id:uid(), date, activities:[]});
+    t.days.sort((a,b)=> (a.date||'') < (b.date||'') ? -1 : 1);
+    closeModal(); renderAll();
+  };
+}
+
+function deleteDay(dayId){
+  const t = activeTrip(); if(!t) return;
+  confirmAction('למחוק את היום הזה ואת כל הפעילויות בו?', () => {
+    t.days = t.days.filter(d => d.id !== dayId);
+    renderAll();
+  });
+}
+
+function addActivity(dayId){
+  const t = activeTrip(); if(!t) return;
+  openModal(`
+    <h3>פעילות חדשה</h3>
+    <div class="row2">
+      <div class="field">
+        <label class="f-label">שעה</label>
+        <input type="time" id="aaTime">
+      </div>
+      <div class="field">
+        <label class="f-label">כותרת</label>
+        <input id="aaTitle" placeholder="לדוגמה: טיסה, סיור, ארוחת ערב">
+      </div>
+    </div>
+    <div class="field">
+      <label class="f-label">מיקום</label>
+      <input id="aaLoc" placeholder="מקום / כתובת">
+    </div>
+    <div class="field">
+      <label class="f-label">הערות</label>
+      <textarea id="aaNotes" rows="2" placeholder="פרטים נוספים..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="aaCancel">ביטול</button>
+      <button class="primary" id="aaSave">הוסף פעילות</button>
+    </div>
+  `);
+  document.getElementById('aaCancel').onclick = closeModal;
+  document.getElementById('aaSave').onclick = () => {
+    const day = t.days.find(d=>d.id===dayId);
+    if(!day) return closeModal();
+    day.activities.push({
+      id: uid(),
+      time: document.getElementById('aaTime').value || '',
+      title: document.getElementById('aaTitle').value.trim() || 'פעילות',
+      location: document.getElementById('aaLoc').value.trim(),
+      notes: document.getElementById('aaNotes').value.trim()
+    });
+    day.activities.sort((a,b)=> (a.time||'99:99').localeCompare(b.time||'99:99'));
+    closeModal(); renderAll();
+  };
+}
+
+function deleteActivity(dayId, actId){
+  const t = activeTrip(); if(!t) return;
+  const day = t.days.find(d=>d.id===dayId);
+  if(!day) return;
+  day.activities = day.activities.filter(a=>a.id!==actId);
+  renderAll();
+}
+
+/* ---------------- auto-plan wizard (תכנון לפי העדפות) ---------------- */
+let wizard = null;
+
+function ensureDaysCount(t, n){
+  while(t.days.length < n){
+    let date = null;
+    if(t.startDate){
+      const base = new Date(t.startDate+'T00:00:00');
+      base.setDate(base.getDate() + t.days.length);
+      date = base.toISOString().slice(0,10);
+    }
+    t.days.push({id:uid(), date, activities:[]});
+  }
+}
+
+function scoreAttraction(a, interests, companion){
+  const tags = a.tags || [];
+  let score = 0;
+  interests.forEach(i => { if(tags.includes(i)) score += 2; });
+  (COMPANION_BOOST[companion]||[]).forEach(i => { if(tags.includes(i)) score += 1; });
+  return score;
+}
+
+function openAutoPlanWizard(){
+  const t = activeTrip(); if(!t) return;
+  wizard = { days: Math.max(1, t.days.length || 3), pace:'balanced', interests:[], companion:'solo', mode:'fill-empty' };
+  renderWizardStep(1);
+}
+
+function renderWizardStep(step){
+  const t = activeTrip(); if(!t) return;
+  const match = matchDestinationSuggestions(t.destination);
+  const destNote = !match ? `<div class="muted-small" style="margin-bottom:10px;">${t.destination ? `לא נמצאו הצעות ייעודיות ל"${escapeHtml(t.destination)}" - נשתמש בתבנית תכנון כללית שאפשר להתאים לפי הצורך.` : 'לא הוגדר יעד לטיול - התוכנית תתבסס על תבנית כללית.'}</div>` : '';
+
+  if(step===1){
+    openModal(`
+      <h3>תכנון טיול לפי העדפות · שאלה 1 מ-4</h3>
+      ${destNote}
+      <div class="field">
+        <label class="f-label">כמה ימים לתכנן?</label>
+        <input type="number" id="wDays" min="1" max="30" value="${wizard.days}">
+      </div>
+      <div class="field">
+        <label class="f-label">קצב מועדף</label>
+        <select id="wPace">
+          <option value="relaxed" ${wizard.pace==='relaxed'?'selected':''}>רגוע - כ-2 פעילויות ביום</option>
+          <option value="balanced" ${wizard.pace==='balanced'?'selected':''}>מאוזן - כ-3 פעילויות ביום</option>
+          <option value="intense" ${wizard.pace==='intense'?'selected':''}>אינטנסיבי - כ-4 פעילויות ביום</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="ghost" id="wCancel">ביטול</button>
+        <button class="primary" id="wNext">הבא</button>
+      </div>
+    `);
+    document.getElementById('wCancel').onclick = () => { wizard=null; closeModal(); };
+    document.getElementById('wNext').onclick = () => {
+      wizard.days = Math.min(30, Math.max(1, Number(document.getElementById('wDays').value) || wizard.days));
+      wizard.pace = document.getElementById('wPace').value;
+      renderWizardStep(2);
+    };
+  }
+
+  if(step===2){
+    openModal(`
+      <h3>תכנון טיול לפי העדפות · שאלה 2 מ-4</h3>
+      <div class="muted-small" style="margin-bottom:8px;">מה מעניין אתכם בטיול הזה? (אפשר לבחור כמה, או להשאיר ריק)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${INTEREST_OPTIONS.map(o => `
+          <label style="display:flex;align-items:center;gap:5px;background:#f6f5f1;border:1px solid var(--line);border-radius:20px;padding:6px 12px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" value="${o.key}" class="wInterest" ${wizard.interests.includes(o.key)?'checked':''} style="width:15px;height:15px;margin:0;"> ${o.label}
+          </label>
+        `).join('')}
+      </div>
+      <div class="modal-actions">
+        <button class="ghost" id="wBack">הקודם</button>
+        <button class="primary" id="wNext">הבא</button>
+      </div>
+    `);
+    document.getElementById('wBack').onclick = () => renderWizardStep(1);
+    document.getElementById('wNext').onclick = () => {
+      wizard.interests = Array.from(document.querySelectorAll('.wInterest:checked')).map(el=>el.value);
+      renderWizardStep(3);
+    };
+  }
+
+  if(step===3){
+    openModal(`
+      <h3>תכנון טיול לפי העדפות · שאלה 3 מ-4</h3>
+      <div class="field">
+        <label class="f-label">עם מי אתם נוסעים?</label>
+        <select id="wCompanion">
+          ${COMPANION_OPTIONS.map(o=>`<option value="${o.key}" ${wizard.companion===o.key?'selected':''}>${o.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="ghost" id="wBack">הקודם</button>
+        <button class="primary" id="wNext">הבא</button>
+      </div>
+    `);
+    document.getElementById('wBack').onclick = () => renderWizardStep(2);
+    document.getElementById('wNext').onclick = () => {
+      wizard.companion = document.getElementById('wCompanion').value;
+      renderWizardStep(4);
+    };
+  }
+
+  if(step===4){
+    openModal(`
+      <h3>תכנון טיול לפי העדפות · שאלה 4 מ-4</h3>
+      <div class="field">
+        <label class="f-label">מה לעשות עם ימים שיש בהם כבר פעילויות?</label>
+        <select id="wMode">
+          <option value="fill-empty" ${wizard.mode==='fill-empty'?'selected':''}>למלא רק ימים ריקים</option>
+          <option value="append" ${wizard.mode==='append'?'selected':''}>להוסיף הצעות לכל הימים, בלי למחוק קיים</option>
+          <option value="replace" ${wizard.mode==='replace'?'selected':''}>להחליף את כל הלו״ז בתוכנית חדשה</option>
+        </select>
+      </div>
+      <div class="muted-small">${wizard.days} ימים · קצב ${wizard.pace==='relaxed'?'רגוע':wizard.pace==='intense'?'אינטנסיבי':'מאוזן'} · ${wizard.interests.length? wizard.interests.map(k=>INTEREST_OPTIONS.find(o=>o.key===k).label).join(', ') : 'ללא העדפה מיוחדת'}</div>
+      <div class="modal-actions">
+        <button class="ghost" id="wBack">הקודם</button>
+        <button class="primary" id="wGenerate">✨ צור תוכנית</button>
+      </div>
+    `);
+    document.getElementById('wBack').onclick = () => renderWizardStep(3);
+    document.getElementById('wGenerate').onclick = () => {
+      wizard.mode = document.getElementById('wMode').value;
+      generateAutoPlan();
+      wizard = null;
+      closeModal();
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      document.querySelector('.tab-btn[data-tab="itinerary"]').classList.add('active');
+      document.getElementById('panel-itinerary').classList.add('active');
+    };
+  }
+}
+
+function generateAutoPlan(){
+  const t = activeTrip(); if(!t || !wizard) return;
+  const match = matchDestinationSuggestions(t.destination);
+  const locationName = match ? match.name : (t.destination || '');
+  const perDay = wizard.pace==='relaxed' ? 2 : wizard.pace==='intense' ? 4 : 3;
+  const timeSlots = ['09:30','12:30','16:00','19:30'];
+  const scoreFn = (a,b) => scoreAttraction(b, wizard.interests, wizard.companion) - scoreAttraction(a, wizard.interests, wizard.companion);
+
+  // destination-specific attractions always come first; once those run out, fall back to
+  // still-actionable generic ideas (restaurant, market, museum, day off) instead of leaving days empty.
+  const curatedSorted = match ? match.attractions.slice().sort(scoreFn) : [];
+  const genericSorted = GENERIC_FALLBACK_ATTRACTIONS.slice().sort(scoreFn);
+  const pool = curatedSorted.concat(genericSorted);
+
+  ensureDaysCount(t, wizard.days);
+  const targetDays = t.days.slice(0, wizard.days);
+  let poolIdx = 0;
+
+  targetDays.forEach((day, i) => {
+    if(day.activities.length > 0){
+      if(wizard.mode === 'fill-empty') return;
+      if(wizard.mode === 'replace') day.activities = [];
+    }
+    const isEdgeDay = (i===0 || i===targetDays.length-1) && targetDays.length>1;
+    const dayCount = isEdgeDay ? Math.max(1, perDay-1) : perDay;
+
+    for(let k=0; k<dayCount; k++){
+      let item;
+      if(poolIdx < pool.length){
+        item = pool[poolIdx++];
+      } else {
+        item = {name:'זמן חופשי לסיור עצמאי', note:'הזדמנות לגלות פינה משלכם ביעד או לנוח'};
+      }
+      day.activities.push({id:uid(), time: timeSlots[k]||'', title:item.name, location:locationName, notes:item.note||'', cost:item.cost||'', link:item.ticketUrl||''});
+    }
+    day.activities.sort((a,b)=> (a.time||'99:99').localeCompare(b.time||'99:99'));
+  });
+
+  renderAll();
+}
+
+/* ---------------- budget ---------------- */
+const EXPENSE_CATEGORIES = ['טיסות','לינה','אוכל','תחבורה','אטרקציות','קניות','אחר'];
+
+function addExpense(){
+  const t = activeTrip(); if(!t) return;
+  openModal(`
+    <h3>הוצאה חדשה</h3>
+    <div class="row2">
+      <div class="field">
+        <label class="f-label">תיאור</label>
+        <input id="aeDesc" placeholder="לדוגמה: מלון בליל 2">
+      </div>
+      <div class="field">
+        <label class="f-label">סכום (${currency(t)})</label>
+        <input type="number" id="aeAmt" min="0" placeholder="0">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label class="f-label">קטגוריה</label>
+        <select id="aeCat">${EXPENSE_CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+      </div>
+      <div class="field">
+        <label class="f-label">תאריך</label>
+        <input type="date" id="aeDate">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="aeCancel">ביטול</button>
+      <button class="primary" id="aeSave">הוסף הוצאה</button>
+    </div>
+  `);
+  document.getElementById('aeCancel').onclick = closeModal;
+  document.getElementById('aeSave').onclick = () => {
+    const desc = document.getElementById('aeDesc').value.trim() || 'הוצאה';
+    const amt = Number(document.getElementById('aeAmt').value) || 0;
+    const cat = document.getElementById('aeCat').value;
+    const date = document.getElementById('aeDate').value || '';
+    t.expenses.push({id:uid(), description:desc, amount:amt, category:cat, date});
+    t.expenses.sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+    closeModal(); renderAll();
+  };
+}
+
+function deleteExpense(expId){
+  const t = activeTrip(); if(!t) return;
+  t.expenses = t.expenses.filter(e=>e.id!==expId);
+  renderAll();
+}
+
+function editBudgetTotal(){
+  const t = activeTrip(); if(!t) return;
+  openModal(`
+    <h3>עריכת תקציב כולל</h3>
+    <div class="field">
+      <label class="f-label">תקציב כולל (${currency(t)})</label>
+      <input type="number" id="ebAmt" min="0" value="${t.budgetTotal||0}">
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="ebCancel">ביטול</button>
+      <button class="primary" id="ebSave">שמור</button>
+    </div>
+  `);
+  document.getElementById('ebCancel').onclick = closeModal;
+  document.getElementById('ebSave').onclick = () => {
+    t.budgetTotal = Number(document.getElementById('ebAmt').value) || 0;
+    closeModal(); renderAll();
+  };
+}
+
+/* ---------------- places & documents ---------------- */
+function addPlace(){
+  const t = activeTrip(); if(!t) return;
+  openModal(`
+    <h3>מקום חדש</h3>
+    <div class="field">
+      <label class="f-label">שם המקום</label>
+      <input id="apName" placeholder="לדוגמה: מוזיאון, מסעדה, נקודת תצפית">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label class="f-label">עלות כניסה</label>
+        <select id="apCost">
+          <option value="">לא ידוע</option>
+          <option value="חינם">חינם</option>
+          <option value="בתשלום">בתשלום</option>
+          <option value="בתשלום חלקי">בתשלום חלקי / תלוי בסעיף</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="f-label">קישור לרכישת כרטיסים / אתר רשמי (אופציונלי)</label>
+        <input id="apLink" placeholder="https://...">
+      </div>
+    </div>
+    <div class="field">
+      <label class="f-label">הערות</label>
+      <textarea id="apNotes" rows="2" placeholder="למה שווה לבקר, טיפים..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="apCancel">ביטול</button>
+      <button class="primary" id="apSave">הוסף מקום</button>
+    </div>
+  `);
+  document.getElementById('apCancel').onclick = closeModal;
+  document.getElementById('apSave').onclick = () => {
+    t.places.push({
+      id: uid(),
+      name: document.getElementById('apName').value.trim() || 'מקום',
+      link: document.getElementById('apLink').value.trim(),
+      cost: document.getElementById('apCost').value,
+      notes: document.getElementById('apNotes').value.trim(),
+      done: false
+    });
+    closeModal(); renderAll();
+  };
+}
+
+function togglePlace(id){
+  const t = activeTrip(); if(!t) return;
+  const p = t.places.find(x=>x.id===id);
+  if(p){ p.done = !p.done; renderAll(); }
+}
+function deletePlace(id){
+  const t = activeTrip(); if(!t) return;
+  t.places = t.places.filter(p=>p.id!==id);
+  renderAll();
+}
+
+const DOC_TYPES = ['דרכון','אשרה (וויזה)','ביטוח נסיעות','כרטיס טיסה','הזמנת מלון','שכירת רכב','אחר'];
+
+function addDocument(){
+  const t = activeTrip(); if(!t) return;
+  openModal(`
+    <h3>מסמך / הזמנה חדשה</h3>
+    <div class="row2">
+      <div class="field">
+        <label class="f-label">סוג</label>
+        <select id="adcType">${DOC_TYPES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+      </div>
+      <div class="field">
+        <label class="f-label">שם / פרטים</label>
+        <input id="adcName" placeholder="לדוגמה: מלון אתונה - הזמנה #123">
+      </div>
+    </div>
+    <div class="field">
+      <label class="f-label">תאריך תפוגה / מועד רלוונטי (אופציונלי)</label>
+      <input type="date" id="adcDate">
+    </div>
+    <div class="modal-actions">
+      <button class="ghost" id="adcCancel">ביטול</button>
+      <button class="primary" id="adcSave">הוסף</button>
+    </div>
+  `);
+  document.getElementById('adcCancel').onclick = closeModal;
+  document.getElementById('adcSave').onclick = () => {
+    t.documents.push({
+      id: uid(),
+      type: document.getElementById('adcType').value,
+      name: document.getElementById('adcName').value.trim() || '',
+      expiry: document.getElementById('adcDate').value || '',
+      done: false
+    });
+    closeModal(); renderAll();
+  };
+}
+function addStandardDocuments(){
+  const t = activeTrip(); if(!t) return;
+  const existingNames = new Set(t.documents.map(d=>d.name));
+  let added = 0;
+  STANDARD_DOCUMENTS.forEach(sd => {
+    if(!existingNames.has(sd.name)){
+      t.documents.push({id:uid(), type:sd.type, name:sd.name, expiry:'', done:false});
+      added++;
+    }
+  });
+  renderAll();
+}
+
+function addSuggestedPlace(idx){
+  const t = activeTrip(); if(!t || !window.__destMatch) return;
+  const item = window.__destMatch.attractions[idx];
+  if(!item) return;
+  if(t.places.some(p=>p.name===item.name)) return;
+  t.places.push({id:uid(), name:item.name, notes:item.note||'', link:item.ticketUrl||'', cost:item.cost||'', done:false});
+  renderAll();
+}
+
+function toggleDocument(id){
+  const t = activeTrip(); if(!t) return;
+  const d = t.documents.find(x=>x.id===id);
+  if(d){ d.done = !d.done; renderAll(); }
+}
+function deleteDocument(id){
+  const t = activeTrip(); if(!t) return;
+  t.documents = t.documents.filter(d=>d.id!==id);
+  renderAll();
+}
+
+/* ---------------- export / import ---------------- */
+function exportData(){
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `trip-planner-${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importData(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const parsed = JSON.parse(reader.result);
+      if(!parsed || !Array.isArray(parsed.trips)) throw new Error('bad format');
+      state = parsed;
+      // recompute uidCounter roughly to avoid collisions
+      uidCounter += 100000;
+      renderAll();
+    }catch(e){
+      openModal(`<h3>שגיאה בטעינה</h3><p>הקובץ שנבחר אינו קובץ נתונים תקין של מתכנן הטיולים.</p>
+      <div class="modal-actions"><button class="primary" id="impErrOk">הבנתי</button></div>`);
+      document.getElementById('impErrOk').onclick = closeModal;
+    }
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('exportBtn').onclick = exportData;
+document.getElementById('importBtn').onclick = () => document.getElementById('importFile').click();
+document.getElementById('importFile').onchange = (e) => {
+  if(e.target.files && e.target.files[0]) importData(e.target.files[0]);
+  e.target.value = '';
+};
+
+/* ---------------- rendering ---------------- */
+function escapeHtml(str){
+  return String(str||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderTripSelect(){
+  const sel = document.getElementById('tripSelect');
+  sel.innerHTML = state.trips.map(t => `<option value="${t.id}" ${t.id===state.activeTripId?'selected':''}>${escapeHtml(t.name)}</option>`).join('');
+}
+
+function renderHero(){
+  const t = activeTrip();
+  const hero = document.getElementById('tripHero');
+  if(!t){ hero.innerHTML=''; return; }
+  const spent = t.expenses.reduce((s,e)=>s+Number(e.amount||0),0);
+  const remaining = (t.budgetTotal||0) - spent;
+  const daysCount = t.days.length;
+  const docsLeft = t.documents.filter(d=>!d.done).length;
+  const placesLeft = t.places.filter(p=>!p.done).length;
+
+  let dateStr = '';
+  if(t.startDate){
+    dateStr = fmtDate(t.startDate) + (t.endDate && t.endDate!==t.startDate ? ' – ' + fmtDate(t.endDate) : '');
+  }
+
+  hero.innerHTML = `
+    <div class="top-row">
+      <div>
+        <h2>${escapeHtml(t.name)}</h2>
+        <div class="meta">
+          ${t.destination ? `<span>📍 ${escapeHtml(t.destination)}</span>` : ''}
+          ${dateStr ? `<span>🗓️ ${dateStr}</span>` : ''}
+          <span>💱 ${t.currency}</span>
+        </div>
+      </div>
+      <button class="small" onclick="editTripDetails()">✎ ערוך פרטי טיול</button>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="num">${daysCount}</div><div class="lbl">ימים בלו״ז</div></div>
+      <div class="stat ${remaining<0?'over':''}"><div class="num">${fmtMoney(remaining, t.currency)}</div><div class="lbl">${remaining<0?'חריגה מהתקציב':'נותר מהתקציב'}</div></div>
+      <div class="stat"><div class="num">${placesLeft}</div><div class="lbl">מקומות לביקור</div></div>
+      <div class="stat"><div class="num">${docsLeft}</div><div class="lbl">מסמכים לטפל בהם</div></div>
+    </div>
+  `;
+}
+
+function renderItinerary(){
+  const t = activeTrip();
+  const panel = document.getElementById('panel-itinerary');
+  if(!t){ panel.innerHTML=''; return; }
+  const daysHtml = t.days.map(day => {
+    const actsHtml = day.activities.length
+      ? day.activities.map(a => `
+        <div class="activity">
+          <div class="time">${a.time || '--:--'}</div>
+          <div class="body">
+            <div class="t">${escapeHtml(a.title)}</div>
+            ${a.location ? `<div class="loc">📍 ${escapeHtml(a.location)}</div>` : ''}
+            ${a.notes ? `<div class="notes">${escapeHtml(a.notes)}</div>` : ''}
+            <div class="notes" style="margin-top:3px;">
+              ${a.cost ? `<span class="tag">💰 ${escapeHtml(a.cost)}</span> ` : ''}
+              <a href="${mapsLink(a.title, t.destination)}" target="_blank" rel="noopener">🗺️ מפה</a>
+              ${a.link ? ` · <a href="${escapeHtml(a.link)}" target="_blank" rel="noopener">🎫 כרטיסים</a>` : ''}
+            </div>
+          </div>
+          <button class="icon-btn danger-outline small del" onclick="deleteActivity('${day.id}','${a.id}')">✕</button>
+        </div>
+      `).join('')
+      : `<div class="empty-day">אין עדיין פעילויות ליום הזה</div>`;
+
+    return `
+      <div class="day-card">
+        <div class="day-head">
+          <div class="day-title">${day.date ? escapeHtml(fmtDate(day.date)) : 'יום ללא תאריך'}</div>
+          <div style="display:flex;gap:6px;">
+            <button class="small" onclick="addActivity('${day.id}')">+ פעילות</button>
+            <button class="small danger-outline" onclick="deleteDay('${day.id}')">מחק יום</button>
+          </div>
+        </div>
+        ${actsHtml}
+      </div>
+    `;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="card">
+      <div class="section-head">
+        <h3>לו״ז יומי</h3>
+        <div style="display:flex;gap:6px;">
+          <button class="primary small" onclick="openAutoPlanWizard()">🧭 תכנון אוטומטי לפי העדפות</button>
+          <button class="accent small" onclick="addDay()">+ הוסף יום</button>
+        </div>
+      </div>
+      ${t.days.length ? daysHtml : `<div class="muted-small">אין ימים בלו״ז. הוסיפי יום כדי להתחיל.</div>`}
+    </div>
+  `;
+}
+
+function renderBudget(){
+  const t = activeTrip();
+  const panel = document.getElementById('panel-budget');
+  if(!t){ panel.innerHTML=''; return; }
+  const cur = t.currency;
+  const spent = t.expenses.reduce((s,e)=>s+Number(e.amount||0),0);
+  const budget = t.budgetTotal||0;
+  const pct = budget>0 ? Math.min(100, Math.round((spent/budget)*100)) : 0;
+  const over = budget>0 && spent>budget;
+
+  const byCat = {};
+  t.expenses.forEach(e => { byCat[e.category] = (byCat[e.category]||0) + Number(e.amount||0); });
+  const maxCat = Math.max(1, ...Object.values(byCat));
+  const catsHtml = Object.keys(byCat).length ? Object.entries(byCat).map(([cat,amt]) => `
+    <div class="bar-row">
+      <div class="bar-labels"><span>${escapeHtml(cat)}</span><span>${fmtMoney(amt,cur)}</span></div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${Math.round((amt/maxCat)*100)}%"></div></div>
+    </div>
+  `).join('') : `<div class="muted-small">אין הוצאות עדיין</div>`;
+
+  const expHtml = t.expenses.length ? t.expenses.map(e => `
+    <div class="expense-row">
+      <div>
+        <span class="cat">${escapeHtml(e.category)}</span>
+        <span class="desc">${escapeHtml(e.description)}</span>
+        ${e.date ? `<div class="date">${fmtDate(e.date)}</div>` : ''}
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="amt">${fmtMoney(e.amount,cur)}</span>
+        <button class="icon-btn danger-outline small" onclick="deleteExpense('${e.id}')">✕</button>
+      </div>
+    </div>
+  `).join('') : `<div class="muted-small">אין הוצאות עדיין. הוסיפי הוצאה כדי להתחיל לעקוב.</div>`;
+
+  panel.innerHTML = `
+    <div class="card">
+      <div class="section-head">
+        <h3>תקציב כולל</h3>
+        <button class="small" onclick="editBudgetTotal()">✎ עריכת תקציב</button>
+      </div>
+      ${budget>0 ? `
+        <div class="budget-progress">
+          <div class="bar-labels" style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+            <span>${fmtMoney(spent,cur)} מתוך ${fmtMoney(budget,cur)}</span>
+            <span>${pct}%</span>
+          </div>
+          <div class="bar-bg"><div class="bar-fill ${over?'over':''}" style="width:${pct}%"></div></div>
+        </div>
+      ` : `<div class="muted-small">לא הוגדר תקציב כולל. אפשר להגדיר כדי לעקוב אחוזי ניצול.</div>`}
+    </div>
+
+    <div class="card">
+      <div class="section-head">
+        <h3>💡 חלוקה מומלצת לתקציב</h3>
+      </div>
+      ${budget>0 ? `
+        <div class="bars">
+          ${Object.entries(SUGGESTED_SPLIT).map(([cat,share]) => {
+            const suggested = budget*share;
+            const actual = byCat[cat]||0;
+            const sPct = Math.min(100, Math.round((suggested/budget)*100));
+            const aPct = Math.min(100, Math.round((actual/budget)*100));
+            const over = actual > suggested && suggested>0;
+            return `
+              <div class="bar-row">
+                <div class="bar-labels"><span>${escapeHtml(cat)}</span><span>מומלץ ${fmtMoney(suggested,cur)} · בפועל ${fmtMoney(actual,cur)}</span></div>
+                <div class="bar-bg split-suggested" style="margin-bottom:3px;"><div class="bar-fill" style="width:${sPct}%;"></div></div>
+                <div class="bar-bg"><div class="bar-fill ${over?'over':''}" style="width:${aPct}%;"></div></div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        <div class="muted-small" style="margin-top:6px;">השורה הבהירה = חלוקה מומלצת · השורה הכהה = מה שהוצא בפועל</div>
+      ` : `<div class="muted-small">הגדירי תקציב כולל כדי לראות חלוקה מומלצת לפי קטגוריות (טיסות, לינה, אוכל, אטרקציות, אחר).</div>`}
+    </div>
+
+    <div class="card">
+      <div class="section-head">
+        <h3>פילוח לפי קטגוריה</h3>
+      </div>
+      <div class="bars">${catsHtml}</div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">
+        <h3>הוצאות (${t.expenses.length})</h3>
+        <button class="accent small" onclick="addExpense()">+ הוצאה</button>
+      </div>
+      ${expHtml}
+    </div>
+  `;
+}
+
+function renderPlaces(){
+  const t = activeTrip();
+  const panel = document.getElementById('panel-places');
+  if(!t){ panel.innerHTML=''; return; }
+
+  const placesHtml = t.places.length ? t.places.map(p => `
+    <div class="list-item ${p.done?'done':''}">
+      <input type="checkbox" ${p.done?'checked':''} onchange="togglePlace('${p.id}')">
+      <div class="content">
+        <div class="title">${escapeHtml(p.name)}</div>
+        ${p.notes ? `<div class="sub">${escapeHtml(p.notes)}</div>` : ''}
+        <div class="sub">
+          ${p.cost ? `<span class="tag">💰 ${escapeHtml(p.cost)}</span> ` : ''}
+          <a href="${mapsLink(p.name, t.destination)}" target="_blank" rel="noopener">🗺️ מפה</a>
+          ${p.link ? ` · <a href="${escapeHtml(p.link)}" target="_blank" rel="noopener">🎫 רכישת כרטיסים / אתר רשמי</a>` : ''}
+        </div>
+      </div>
+      <button class="icon-btn danger-outline small" onclick="deletePlace('${p.id}')">✕</button>
+    </div>
+  `).join('') : `<div class="muted-small">אין עדיין מקומות ברשימה.</div>`;
+
+  const docsHtml = t.documents.length ? t.documents.map(d => `
+    <div class="list-item ${d.done?'done':''}">
+      <input type="checkbox" ${d.done?'checked':''} onchange="toggleDocument('${d.id}')">
+      <div class="content">
+        <div class="title"><span class="tag">${escapeHtml(d.type)}</span> ${escapeHtml(d.name)}</div>
+        ${d.expiry ? `<div class="sub">📅 ${fmtDate(d.expiry)}</div>` : ''}
+      </div>
+      <button class="icon-btn danger-outline small" onclick="deleteDocument('${d.id}')">✕</button>
+    </div>
+  `).join('') : `<div class="muted-small">אין עדיין מסמכים או הזמנות ברשימה.</div>`;
+
+  const match = matchDestinationSuggestions(t.destination);
+  window.__destMatch = match;
+  const already = new Set(t.places.map(p=>p.name));
+  let suggCard = '';
+  if(match){
+    const itemsHtml = match.attractions.map((a,idx) => `
+      <div class="list-item">
+        <div class="content">
+          <div class="title">${escapeHtml(a.name)}</div>
+          ${a.note ? `<div class="sub">${escapeHtml(a.note)}</div>` : ''}
+          <div class="sub">
+            ${a.cost ? `<span class="tag">💰 ${escapeHtml(a.cost)}</span> ` : ''}
+            <a href="${mapsLink(a.name, match.name)}" target="_blank" rel="noopener">🗺️ מפה</a>
+            ${a.ticketUrl ? ` · <a href="${escapeHtml(a.ticketUrl)}" target="_blank" rel="noopener">🎫 רכישת כרטיסים</a>` : ''}
+          </div>
+        </div>
+        <button class="small ${already.has(a.name)?'ghost':'accent'}" ${already.has(a.name)?'disabled':''} onclick="addSuggestedPlace(${idx})">${already.has(a.name)?'✓ נוסף':'+ הוסף'}</button>
+      </div>
+    `).join('');
+    const tipsHtml = match.tips && match.tips.length ? `<div class="muted-small sugg-tips">💡 ${match.tips.map(escapeHtml).join(' · ')}</div>` : '';
+    suggCard = `
+      <div class="card">
+        <div class="section-head"><h3>💡 הצעות ל${escapeHtml(match.name)}</h3></div>
+        ${itemsHtml}
+        ${tipsHtml}
+      </div>
+    `;
+  } else {
+    suggCard = `
+      <div class="card">
+        <div class="section-head"><h3>💡 הצעות ליעד</h3></div>
+        <div class="muted-small">${t.destination ? 'אין עדיין הצעות מובנות ליעד הזה - ' : 'הגדירי יעד לטיול (בכפתור "ערוך פרטי טיול" למעלה) כדי לקבל הצעות אתרים ופעילויות. '}אפשר גם לחפש השראה ב-Google Maps או TripAdvisor ולהוסיף מקומות ידנית למטה.</div>
+      </div>
+    `;
+  }
+
+  panel.innerHTML = `
+    ${suggCard}
+    <div class="card">
+      <div class="section-head">
+        <h3>מקומות לביקור (${t.places.length})</h3>
+        <button class="accent small" onclick="addPlace()">+ מקום</button>
+      </div>
+      ${placesHtml}
+    </div>
+    <div class="card">
+      <div class="section-head">
+        <h3>מסמכים והזמנות (${t.documents.length})</h3>
+        <div style="display:flex;gap:6px;">
+          <button class="small" onclick="addStandardDocuments()">+ רשימת הכנות סטנדרטית</button>
+          <button class="accent small" onclick="addDocument()">+ מסמך</button>
+        </div>
+      </div>
+      ${docsHtml}
+    </div>
+  `;
+}
+
+function renderAll(){
+  const hasTrips = state.trips.length > 0;
+  document.getElementById('noTrips').style.display = hasTrips ? 'none' : 'block';
+  document.getElementById('tripArea').style.display = hasTrips ? 'block' : 'none';
+  document.getElementById('deleteTripBtn').disabled = !hasTrips;
+
+  if(hasTrips && !activeTrip()){
+    state.activeTripId = state.trips[0].id;
+  }
+
+  renderTripSelect();
+  renderHero();
+  renderItinerary();
+  renderBudget();
+  renderPlaces();
+  saveToStorage();
+}
+
+/* ---------------- tabs & top controls ---------------- */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+document.getElementById('newTripBtn').onclick = openNewTripModal;
+document.getElementById('deleteTripBtn').onclick = deleteActiveTrip;
+document.getElementById('tripSelect').onchange = (e) => {
+  state.activeTripId = e.target.value;
+  renderAll();
+};
+
+/* ---------------- seed example on first run ---------------- */
+(function seed(){
+  const saved = loadFromStorage();
+  if(saved){
+    state = saved;
+    let maxNum = 0;
+    JSON.stringify(state).replace(/"id(\d+)_/g, (m,n) => { const v = parseInt(n); if(v>maxNum) maxNum = v; return m; });
+    uidCounter = maxNum + 1;
+    return;
+  }
+  const today = new Date();
+  const start = new Date(today); start.setDate(start.getDate()+30);
+  const end = new Date(start); end.setDate(end.getDate()+4);
+  const startStr = start.toISOString().slice(0,10);
+  const endStr = end.toISOString().slice(0,10);
+
+  const trip = {
+    id: uid(), name: 'טיול לדוגמה - אתונה', destination: 'אתונה, יוון', currency:'€',
+    startDate: startStr, endDate: endStr, budgetTotal: 6000,
+    days: dateRangeDays(startStr,endStr).map(d=>({id:uid(),date:d,activities:[]})),
+    expenses: [
+      {id:uid(), description:'כרטיסי טיסה הלוך ושוב', amount:1400, category:'טיסות', date: today.toISOString().slice(0,10)},
+      {id:uid(), description:'מלון - 4 לילות', amount:1800, category:'לינה', date: today.toISOString().slice(0,10)}
+    ],
+    places: [
+      {id:uid(), name:'האקרופוליס', notes:'לבוא מוקדם בבוקר כדי להימנע מתורים', link:'https://etickets.tap.gr/', cost:'בתשלום (≈€20, מומלץ לבדוק מחיר עדכני)', done:false},
+      {id:uid(), name:'שכונת פלאקה', notes:'מסעדות וסמטאות יפות לטיול רגלי', link:'', cost:'חינם', done:false}
+    ],
+    documents: [
+      {id:uid(), type:'דרכון', name:'לבדוק תוקף - 6 חודשים לפחות', expiry:'', done:false},
+      {id:uid(), type:'ביטוח נסיעות', name:'לרכוש ביטוח לכל התקופה', expiry:'', done:false}
+    ]
+  };
+  if(trip.days[0]) trip.days[0].activities.push({id:uid(), time:'08:00', title:'טיסה', location:'נתב"ג', notes:'הגעה 3 שעות מראש'});
+
+  state.trips.push(trip);
+  state.activeTripId = trip.id;
+})();
+
+renderAll();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
